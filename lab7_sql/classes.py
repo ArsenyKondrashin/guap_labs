@@ -25,6 +25,13 @@ class ProductsBase():
         self.cursor.execute('UPDATE products SET name = ?, manufacturer_id = ?, quantity = ?, price = ? WHERE id = ?',
                             (name, manufacturer_id, quantity, price, id))
         self.conn.commit()
+    def update_id(self, id, new_id):
+        print(id, self.get_info()[id-2])
+        product = self.get_info()[id-2]
+        print(product, id, new_id)
+        self.cursor.execute('UPDATE products SET name = ?, manufacturer_id = ?, quantity = ?, price = ?, id = ? WHERE id = ?',
+                            (product[1], product[2], product[3], product[4], new_id, id))
+        self.conn.commit()
 
 class Product():
     def __init__(self, obj):
@@ -70,7 +77,11 @@ class ManufacturersBase():
         self.cursor.execute('UPDATE manufacturers SET name = ?, phonenumber = ? WHERE id = ?',
                             (name, phonenumber, id))
         self.conn.commit()
-
+    def update_id(self, id, new_id):
+        manufacturer = self.get_info()[id-2]
+        self.cursor.execute('UPDATE manufacturers SET name = ?, phonenumber = ?, id = ? WHERE id = ?',
+                            (manufacturer[1], manufacturer[2], new_id, id))
+        self.conn.commit()
 class Manufacturer():
     def __init__(self, obj):
         self.id = obj[0]
@@ -82,6 +93,7 @@ class Manufacturer():
         return self.name
     def get_phonenumber(self):
         return self.phonenumber
+
 
 class ClientsBase():
     def __init__(self, data, cursor,conn):
@@ -110,6 +122,11 @@ class ClientsBase():
                             (name, address, phonenumber, id))
         self.conn.commit()
 
+    def update_id(self, id, new_id):
+        client = self.get_info()[id - 2]
+        self.cursor.execute('UPDATE clients SET name = ?, address = ?, phonenumber = ?, id = ? WHERE id = ?',
+                            (client[1], client[2], client[3], new_id, id))
+        self.conn.commit()
 class Client():
     def __init__(self, obj):
         self.id = obj[0]
@@ -154,6 +171,11 @@ class SalesBase():
                             (product_id, quantity, client_id, date, id))
         self.conn.commit()
 
+    def update_id(self, id, new_id):
+        sale = self.get_info()[id - 2]
+        self.cursor.execute('UPDATE sales SET product_id = ?, quantity = ?, client_id = ?, date = ?, id = ? WHERE id = ?',
+                            (sale[1], sale[2], sale[3], new_id, id))
+        self.conn.commit()
 
 
 class Sale():

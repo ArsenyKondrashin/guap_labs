@@ -4,7 +4,6 @@ import sqlite3
 conn = sqlite3.connect('chemists.db')
 cursor = conn.cursor()
 
-# Создание таблицы
 cursor.execute('''
     DROP TABLE orders
 ''')

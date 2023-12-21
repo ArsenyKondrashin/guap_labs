@@ -23,10 +23,10 @@ while True:
           )
     task = input("-> ")
     if task == '1':
-        productsCRUD(products)
+        productsCRUD(products, manufacturers)
     if task == '2':
         manufacturersCRUD(manufacturers)
     if task == '3':
         clientsCRUD(clients)
     if task == '4':
-        salesCRUD(sales)
+        salesCRUD(sales, products, clients)

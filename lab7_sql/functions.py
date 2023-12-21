@@ -35,7 +35,7 @@ def get_tables(cursor, conn):
     ''')
     conn.commit()
 
-def productsCRUD(products):
+def productsCRUD(products, manufacturers):
     while True:
         print("Что будем делать?\n"
               " 1 - получать данные\n"
@@ -45,6 +45,7 @@ def productsCRUD(products):
         task = input("-> ")
 
         if task == '1':
+            refresh_id(products)
             products_list = products.get_info()
             print('<- - - - - - ->')
             for product in products_list:
@@ -62,14 +63,14 @@ def productsCRUD(products):
             task = input("-> ")
 
             if task == '1':
-                creation_data = get_product_creation_data()
+                creation_data = get_product_creation_data(manufacturers)
                 products.create_product(creation_data["name"], creation_data["manufacturer_id"], creation_data["quantity"],
                                         creation_data["price"])
 
             elif task == '2':
                 if len(products) > 0:
                     id = get_id(products)
-                    update_data = get_product_update_data()
+                    update_data = get_product_update_data(manufacturers)
                     products.update_product(id, update_data["name"], update_data["manufacturer_id"],
                                             update_data["quantity"], update_data["price"])
                 else:
@@ -81,7 +82,7 @@ def productsCRUD(products):
                 products.delete_product(id)
             else:
                 print('Нечего удалять')
-
+            refresh_id(products)
         elif task == 'q':
             exit()
 def manufacturersCRUD(manufacturers):
@@ -94,6 +95,7 @@ def manufacturersCRUD(manufacturers):
         task = input("-> ")
 
         if task == '1':
+            refresh_id(manufacturers)
             manufacturers_list = manufacturers.get_info()
             print('<- - - - - - ->')
             for manufacturer in manufacturers_list:
@@ -126,10 +128,10 @@ def manufacturersCRUD(manufacturers):
                 manufacturers.delete_manufacturer(id)
             else:
                 print('Нечего удалять')
+            refresh_id(manufacturers)
 
         elif task == 'q':
             exit()
-
 def clientsCRUD(clients):
     while True:
         print("Что будем делать?\n"
@@ -140,6 +142,7 @@ def clientsCRUD(clients):
         task = input("-> ")
 
         if task == '1':
+            refresh_id(clients)
             clients_list = clients.get_info()
             print('<- - - - - - ->')
             for client in clients_list:
@@ -173,10 +176,11 @@ def clientsCRUD(clients):
                 clients.delete_client(id)
             else:
                 print('Нечего удалять')
+            refresh_id(clients)
 
         elif task == 'q':
             exit()
-def salesCRUD(sales):
+def salesCRUD(sales, products, clients):
     while True:
         print("Что будем делать?\n"
               " 1 - получать данные\n"
@@ -186,6 +190,7 @@ def salesCRUD(sales):
         task = input("-> ")
 
         if task == '1':
+            refresh_id(sales)
             sales_list = sales.get_info()
             print('<- - - - - - ->')
             for sale in sales_list:
@@ -203,13 +208,13 @@ def salesCRUD(sales):
             task = input("-> ")
 
             if task == '1':
-                creation_data = get_sale_creation_data()
+                creation_data = get_sale_creation_data(products, clients)
                 sales.create_sale(creation_data["product_id"], creation_data["quantity"], creation_data["client_id"], creation_data["date"])
 
             elif task == '2':
                 if len(sales) > 0:
                     id = get_id(sales)
-                    update_data = get_sale_update_data()
+                    update_data = get_sale_update_data(products, clients)
                     sales.update_sale(id, update_data["product_id"], update_data["quantity"], update_data["client_id"], update_data["date"])
                 else:
                     print('Нечего изменять')
@@ -220,26 +225,33 @@ def salesCRUD(sales):
                 sales.delete_sale(id)
             else:
                 print('Нечего удалять')
+            refresh_id(sales)
 
         elif task == 'q':
             exit()
-def get_product_creation_data():
+def get_product_creation_data(manufacturers):
     while True:
         name = input("Введите имя продукта ")
         if len(name.split()) > 0:
             break
         else:
             print("Введена пустая строка")
-    while True:
-        manufacturer_id = input("Введите id производителя продукта ")
-        try:
-            manufacturer_id = int(manufacturer_id)
-            if manufacturer_id >= 0:
-                break
-            else:
-                print("Введите неотрицательное число")
-        except:
-            print("Введите натуральное число")
+    if len(manufacturers) > 0:
+        print("ID производителя:")
+        manufacturer_id = get_id(manufacturers)
+    else:
+        print('Нет производителей')
+        exit()
+    # while True:
+    #     manufacturer_id = input("Введите id производителя продукта ")
+    #     try:
+    #         manufacturer_id = int(manufacturer_id)
+    #         if manufacturer_id >= 0:
+    #             break
+    #         else:
+    #             print("Введите неотрицательное число")
+    #     except:
+    #         print("Введите натуральное число")
     while True:
         quantity = input("Введите количество продукта в штуках ")
         try:
@@ -303,17 +315,23 @@ def get_client_creation_data():
         except:
             print("Введите натуральное число")
     return {"name": name, "address": address, "phonenumber": phonenumber}
-def get_sale_creation_data():
-    while True:
-        product_id = input("Введите id продукта ")
-        try:
-            product_id = int(product_id)
-            if product_id >= 0:
-                break
-            else:
-                print("Введите неотрицательное число")
-        except:
-            print("Введите натуральное число")
+def get_sale_creation_data(products, clients):
+    if len(products) > 0:
+        print("ID продукта:")
+        product_id = get_id(products)
+    else:
+        print('Нет продуктов')
+        exit()
+    # while True:
+    #     product_id = input("Введите id продукта ")
+    #     try:
+    #         product_id = int(product_id)
+    #         if product_id >= 0:
+    #             break
+    #         else:
+    #             print("Введите неотрицательное число")
+    #     except:
+    #         print("Введите натуральное число")
     while True:
         quantity = input("Введите количество продукта в штуках ")
         try:
@@ -324,16 +342,22 @@ def get_sale_creation_data():
                 print("Введите неотрицательное число")
         except:
             print("Введите натуральное число")
-    while True:
-        client_id = input("Введите id клиента ")
-        try:
-            client_id = int(client_id)
-            if client_id > 0:
-                break
-            else:
-                print("Введите положительное число")
-        except:
-            print("Введите натуральное число")
+    if len(products) > 0:
+        print("ID клиента:")
+        client_id = get_id(clients)
+    else:
+        print('Нет клиентов')
+        exit()
+    # while True:
+    #     client_id = input("Введите id клиента ")
+    #     try:
+    #         client_id = int(client_id)
+    #         if client_id > 0:
+    #             break
+    #         else:
+    #             print("Введите положительное число")
+    #     except:
+    #         print("Введите натуральное число")
     while True:
         date = input("Введите дату продажи в формате ГГГГ-ММ-ДД ")
         if fnmatch(date, '????-??-??'):
@@ -344,23 +368,29 @@ def get_sale_creation_data():
             except ValueError:
                 print("Дата введена неверно")
     return {"product_id": product_id, "quantity": quantity, "client_id": client_id, "date": date}
-def get_product_update_data():
+def get_product_update_data(manufacturers):
     while True:
         name = input("Введите имя продукта ")
         if len(name.split()) > 0:
             break
         else:
             print("Введена пустая строка")
-    while True:
-        manufacturer_id = input("Введите id производителя продукта ")
-        try:
-            manufacturer_id = int(manufacturer_id)
-            if manufacturer_id >= 0:
-                break
-            else:
-                print("Введите неотрицательное число")
-        except:
-            print("Введите натуральное число")
+    if len(manufacturers) > 0:
+        print("ID производителя:")
+        manufacturer_id = get_id(manufacturers)
+    else:
+        print('Нет производителей')
+        exit()
+    # while True:
+    #     manufacturer_id = input("Введите id производителя продукта ")
+    #     try:
+    #         manufacturer_id = int(manufacturer_id)
+    #         if manufacturer_id >= 0:
+    #             break
+    #         else:
+    #             print("Введите неотрицательное число")
+    #     except:
+    #         print("Введите натуральное число")
     while True:
         quantity = input("Введите количество продукта в штуках ")
         try:
@@ -424,17 +454,23 @@ def get_client_update_data():
         except:
             print("Введите натуральное число")
     return {"name": name, "address": address, "phonenumber": phonenumber}
-def get_sale_update_data():
-    while True:
-        product_id = input("Введите id продукта ")
-        try:
-            product_id = int(product_id)
-            if product_id >= 0:
-                break
-            else:
-                print("Введите неотрицательное число")
-        except:
-            print("Введите натуральное число")
+def get_sale_update_data(products, clients):
+    if len(products) > 0:
+        print("ID продукта:")
+        product_id = get_id(products)
+    else:
+        print('Нет продуктов')
+        exit()
+    # while True:
+    #     product_id = input("Введите id продукта ")
+    #     try:
+    #         product_id = int(product_id)
+    #         if product_id >= 0:
+    #             break
+    #         else:
+    #             print("Введите неотрицательное число")
+    #     except:
+    #         print("Введите натуральное число")
     while True:
         quantity = input("Введите количество продукта в штуках ")
         try:
@@ -445,16 +481,22 @@ def get_sale_update_data():
                 print("Введите неотрицательное число")
         except:
             print("Введите натуральное число")
-    while True:
-        client_id = input("Введите id клиента ")
-        try:
-            client_id = int(client_id)
-            if client_id > 0:
-                break
-            else:
-                print("Введите положительное число")
-        except:
-            print("Введите натуральное число")
+    if len(products) > 0:
+        print("ID клиента:")
+        client_id = get_id(clients)
+    else:
+        print('Нет клиентов')
+        exit()
+    # while True:
+    #     client_id = input("Введите id клиента ")
+    #     try:
+    #         client_id = int(client_id)
+    #         if client_id > 0:
+    #             break
+    #         else:
+    #             print("Введите положительное число")
+    #     except:
+    #         print("Введите натуральное число")
     while True:
         date = input("Введите дату продажи в формате ГГГГ-ММ-ДД ")
         if fnmatch(date, '????-??-??'):
@@ -467,7 +509,7 @@ def get_sale_update_data():
     return {"product_id": product_id, "quantity": quantity, "client_id": client_id, "date": date}
 def get_id(obj):
     while True:
-        id = input("Введите id нужного элемента ")
+        id = input("Введите id ")
         try:
             id = int(id)
             if (id <= len(obj)) and (id > 0):
@@ -477,3 +519,9 @@ def get_id(obj):
         except:
             print("Введите натуральное число")
     return id
+def refresh_id(obj):
+    objects = obj.get_info()
+    print(len(obj))
+    for i in range(len(objects)):
+        if objects[i][0] != i + 1:
+            obj.update_id(objects[i][0], i + 1)
